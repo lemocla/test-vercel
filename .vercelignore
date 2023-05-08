@@ -4,5 +4,7 @@ static/css
 static/js
 static/download
 */migrations
-mgirations
+migrations
 README
+artworks.json
+portfolio.json
