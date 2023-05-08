@@ -1,0 +1,39 @@
+/*------------[ IMAGES ]-------------*/
+
+.relative {
+    position: relative;
+}
+
+.bag-img-cont {
+    text-align: center;
+    position: relative;
+}
+
+.bag-img-cont>img {
+    object-fit: contain;
+    max-height: 250px;
+}
+
+/*-----------[ GIFT OPTION ]----------*/
+
+.gift-display {
+    display: none;
+}
+
+/*---------[ MEDIA QUERIES ]----------*/
+
+@media only screen and (min-width: 576px) {
+    .bag-img-cont>img {
+        max-height: 375px;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .bag-img-cont {
+        text-align: start;
+    }
+
+    .bag-img-cont>img {
+        max-height: 135px;
+    }
+}

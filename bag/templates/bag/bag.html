@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+{% load bag_tools %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'bag/css/bag.css' %}">
+{% endblock %}
+
+{% block extra_title %}- shopping bag {% endblock %}
+
+{% block content %}
+
+<div class="container pt-md-5 pt-4 pb-3">
+  <div class="row pb-md-3 mb-4">
+    <h1 class="h1-page mt-md-0">Shopping bag</h1>
+  </div>
+
+  {% if bag_items %}
+  <div class="row">
+
+    <div class="col-lg-8 pe-lg-2 pe-xl-5">
+      <h2 class="normal-text mb-4 fs-5">Cart (<span>{{ total_count }}</span> items)</h2>
+      <!-- bag items -->
+      {% for item in bag_items %}
+      <div class="card mb-3">
+        <div class="row gx-md-1 gx-3 gx-xl-2">
+          <div class="col-sm-3 col-xl-3 relative">
+            {% if item.artwork.on_sale %}
+            <div class="sale-label text-uppercase">sale</div>
+            {% endif %}
+            <div class="bag-img-cont">
+              <img class="img-fluid rounded" width="350" height="350"
+                src="{{ MEDIA_URL }}{% if item.artwork.image %}{{ item.artwork.image }}{% else %}default_image.png{% endif %}"
+                alt="{% if not item.artwork.image %}default for {% endif %}{{ item.artwork.name }}">
+            </div>
+          </div>
+          <div class="col mt-4 mt-sm-0">
+            <div class="card-body py-0">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <a href="{% url 'artwork_details' item.artwork.id %}" class="text-link">
+                    <h2 class="fs-5">{{ item.artwork.name }}</h2>
+                  </a>
+                  <p class="mt-3 mb-0 text-muted">{{ item.artwork.materials }}</p>
+                  <p class="mb-3 text-muted">Size: {{ item.artwork.size }} cm</p>
+                </div>
+                <!-- select quantity -->
+                <div>
+                  <h3 class="fs-5 fw-bold mb-2 normal-text">Quantity</h3>
+                  <select data-action="update-bag" data-item="{{item.artwork.id}}" class="px-4 py-2 mb-1"
+                    aria-label="Select quantity" name="quantity">
+                    {% if item.quantity == 1 %}
+                    <option selected value="1">1</option>
+                    {% elif item.quantity != 1 and item.artwork.stock >= 0 %}
+                    <option value="1">1</option>
+                    {% endif %}
+                    {% if item.quantity == 2 %}
+                    <option selected value="2">2</option>
+                    {% elif item.quantity != 2 and item.artwork.stock >= 2 %}
+                    <option value="2">2</option>
+                    {% endif %}
+                    {% if item.quantity == 3 %}
+                    <option selected value="3">3</option>
+                    {% elif item.quantity != 3 and item.artwork.stock >= 3 %}
+                    <option value="3">3</option>
+                    {% endif %}
+                    {% if item.quantity == 4 %}
+                    <option selected value="4">4</option>
+                    {% elif item.quantity != 4 and item.artwork.stock >= 4 %}
+                    <option value="4">4</option>
+                    {% endif %}
+                    {% if item.quantity == 5 %}
+                    <option selected value="5">5</option>
+                    {% elif item.quantity != 5 and item.artwork.stock >= 5 %}
+                    <option value="5">5</option>
+                    {% endif %}
+                  </select>
+                </div>
+
+              </div>
+              <div class="d-md-flex justify-content-between align-items-center">
+                <div>
+                  <button data-action="remove-from-bag" data-item="{{item.artwork.id}}" type="button"
+                    class="btn-bag small text-muted text-uppercase me-4"><i class="fas fa-trash-alt mr-1"
+                      aria-hidden="true"></i>
+                    <span class="text-link"> Remove item</span></button>
+                  {% if request.user.is_authenticated and item.is_wishlist %}
+                  <button data-action="remove-from-wishlist" data-item="{{item.artwork.id}}" type="button"
+                    class="btn-bag red-text small text-uppercase"><i class="fas fa-heart mr-1" aria-hidden="true"></i>
+                    <span class="text-link"> Remove from wishlist</span></button>
+                  {% else %}
+                  <button data-action="add-wishlist" data-item="{{item.artwork.id}}" type="button"
+                    class="btn-bag text-muted small text-uppercase"><i class="fas fa-heart mr-1" aria-hidden="true"></i>
+                    <span class="text-link"> Move to wish list</span></button>
+                  {% endif %}
+                </div>
+                <p class="fs-5 mt-2 mb-0 m-md-0 fw-bolder">
+                  {% if item.artwork.on_sale %}
+                  £{{ item.artwork.sale_price | calc_subtotal:item.quantity }}
+                  {% else %}
+                  £{{ item.artwork.price | calc_subtotal:item.quantity }}
+                  {% endif %}
+                  </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr class="my-4">
+      {% endfor %}
+      <!-- end bag items -->
+
+    </div>
+
+    <!-- Order summary -->
+    <div class="col-lg-4 gy-4 gy-lg-5 px-md-1">
+      <!-- Card -->
+      <div class="card border py-4 px-lg-1 p-xl-3 shadow rounded mb-3 border-lg-secondary">
+        <div class="card-body px-md-5 px-lg-3 px-xl-4">
+          <h2 class="fs-3 mb-4 pb-2 text-center">Order summary</h2>
+          <div class="d-flex justify-content-between text-muted px-0 pb-2">
+            Subtotal
+            <span>{{ total }}</span>
+          </div>
+          <div class="d-flex justify-content-between text-muted px-0">
+            Delivery
+            <span>Free</span>
+          </div>
+          <hr class="mt-3 mb-2">
+          <div class="d-flex justify-content-between border-0 px-0 my-3">
+            <div>
+              <strong>Total</strong>
+              <p class="mb-0 small">(including VAT)</p>
+            </div>
+            <span><strong>£{{ total }}</strong></span>
+          </div>
+          <hr class="my-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="order-is-gift" data-session="{{ is_gift }}"
+              name="is_gift">
+            <label class="form-check-label" for="order-is-gift">
+              This order is a gift
+            </label>
+          </div>
+          <div id="gift-container" class="mt-3 gift-display">
+            <label class="gift-label" for="gift-message">Enter gift message</label>
+            <textarea class="form-control" id="gift-message" name="gift_message" rows="3"
+              placeholder="Enter your gift message - make sure to include to / from names">
+              {% if gift_message %}{{ gift_message }}{% endif %}</textarea>
+          </div>
+
+          <div class="mt-4">
+            <a id="checkout" href="{% url 'checkout' %}" class="mb-2 w-100 btn btn-black py-2 px-5 text-uppercase">
+              checkout</a>
+            <a href="{% url 'shop' %}" class="w-100 btn btn-white py-2 px-5 text-uppercase">
+              keep shopping</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="px-3 mt-4 mt-lg-2">
+      <p class="text-dark mb-3"><i class="fas fa-info-circle mr-1" aria-hidden="true"></i> Do not delay the purchase,
+        adding
+        items to your cart does not mean booking them.
+      </p>
+      <p class="red-text mb-5"><i class="fas fa-info-circle mr-1" aria-hidden="true"></i>
+        Please note that at this moment in time we ONLY delivery to the UK.
+      </p>
+    </div>
+  </div>
+
+
+  <div class="row px-3 px-md-2 px-lg-3">
+    <div class="col-12 rounded shadow px-3 py-3">
+      <h2 class="pb-2 fw-bold fs-5 normal-text">Expected shipping delivery</h2>
+      <p class="mb-0">
+        {% now "D., d.m" %} - {{ 3|calc_est_delivery|date:"D., d.m" }}
+      </p>
+    </div>
+    <div class="col-12 mt-4 mt-md-5 rounded shadow px-3 py-3">
+      <h2 class="fs-5 pb-2">Payment accepted</h2>
+      <div>
+        <img class="mr-2" width="45" height="28" src="{{MEDIA_URL}}visa.svg" alt="Visa card">
+        <img class="mr-2" width="45" height="28" src="{{MEDIA_URL}}mastercard.svg" alt="Mastercard">
+        <img class="mr-2" width="45" height="28" src="{{MEDIA_URL}}amex.svg" alt="American Express card">
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p class="my-5">Your shopping bag is empty.</p>
+  <a href="{% url 'shop' %}" class="btn btn-black px-5 py-2">
+    <span class="text-uppercase">Keep Shopping</span>
+  </a>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'bag/js/update_bag.js' %}"></script>
+<script src="{% static 'bag/js/gift_option.js' %}"></script>
+{% endblock %}

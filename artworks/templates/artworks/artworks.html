@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'artworks/css/artworks.css' %}">
+{% endblock %}
+
+{% block extra_title %}- shop {% if category.name %} {{category.name}}
+{% elif category == 'sale' %} sale{% else %} all {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container pt-md-5 pt-4 pb-3">
+
+    <div class="row ">
+        <h1 class="col-12 col-md-7 col-lg-8 col-xl-9 pb-3">
+            Shop {% if category.name %}{{ category.name }}{% elif category == 'sale' %} sale
+            {% else %} all {% endif %}
+        </h1>
+
+        <!-- sort  -->
+        {% if artworks.count > 0 %}
+        <div class="col text-end py-2">
+            <label id="sort-label" for="sort-selector">Sort items</label>
+            <select class="d-inline-block py-1 px-2 w-100" id="sort-selector">
+                <option value="reset" {% if current_sorting == 'None_None' %}selected{% endif %}>Sort by...</option>
+                <option value="price_asc" {% if current_sorting == 'price_asc' %}selected{% endif %}>Price (low to high)
+                </option>
+                <option value="price_desc" {% if current_sorting == 'price_desc' %}selected{% endif %}>Price(high to low)
+                </option>
+                <option value="name_asc" {% if current_sorting == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+                <option value="name_desc" {% if current_sorting == 'name_desc' %}selected{% endif %}>Name (Z-A)</option>
+                <option value="portfolio_asc" {% if current_sorting == 'portfolio_asc' %}selected{% endif %}>Collection
+                    (A-Z)</option>
+                <option value="portfolio_desc" {% if current_sorting == 'portfolio_desc' %}selected{% endif %}>Collection
+                    (Z-A)</option>
+            </select>
+        </div>
+        {% endif %}
+        <!-- end sort -->
+    </div>
+
+    <div class="row gx-md-5 {% if category.name|lower == 'prints' %} pt-3 {% else %} pt-5 {% endif %}">
+
+        <!-- artwork -->
+        {% if artworks.count > 0 %}
+        {% for artwork in artworks %}
+        <div class="card card-shop pb-0 col-12 col-sm-6 col-md-4 col-xl-3" data-item="{{artwork.id}}">
+
+            {%if artwork.stock == 0 %}
+            <div class="out-of-stock-label px-3 mx-3">out of stock</div>
+            {% endif %}
+            {% if artwork.on_sale %}
+            <div class="sale-label text-uppercase mx-3">sale</div>
+            {% endif %}
+
+            <a href="{% url 'artwork_details' artwork.id %}" class="shop-link text-link card-img-top">
+                <img class="card-img-top" width="350" height="350"
+                    src="{{ MEDIA_URL }}{% if artwork.image %}{{ artwork.image }}{% else %}default_image.png{% endif %}"
+                    alt="{% if not artwork.image %}default for {% endif %}{{ artwork.name }}">
+                <div class="px-1 mt-4 text-start">
+                    <!-- artwork name -->
+                    <h2 class="card-title fs-5 mb-0 text-truncate ">{{ artwork.name }}</h2>
+                </div>
+            </a>
+
+            <div class="card-body pt-0 px-1 pb-0">
+                <!-- artwork details -->
+                <p class="mt-2 mb-0 text-muted small">{{ artwork.materials }}</p>
+                <p class="mb-0 text-muted small">Size: {{ artwork.size }} cm</p>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <!--artwork price-->
+                    <p class="mt-2 mb-0 fs-5 price align-self-end">
+                        {%if artwork.on_sale %}<span class="striked text-muted">£{{ artwork.price }}</span>
+                        <span class="red-text fs-5">£{{ artwork.sale_price }}</span>
+                        {% else %}
+                        £{{ artwork.price }}
+                        {% endif %}
+                    </p>
+
+                    <!--action buttons -->
+                    <div class="btn-group pe-1" role="group" aria-label="Basic example">
+                        {% csrf_token %}
+                        {% if artwork.stock > 0 %}
+                        <a href="{% url 'add_to_bag' artwork.id %}" class="btn round-btn btn-light px-0 me-2"
+                            aria-label="add to cart">
+                            <i class="fas fa-cart-plus" aria-hidden="true"></i></a>
+                        {% endif %}
+                        {% if request.user.is_authenticated and artwork in wishlist %}
+                        <button data-action="remove-from-wishlist" data-item="{{artwork.id}}"
+                            class="btn round-btn btn-light p-0 pt-1 m-0" aria-label="remove-from-wishlist">
+                            <i class="fa-lg fas fa-heart red-text" aria-hidden="true"></i></button>
+                        {% else %}
+                        <button data-action="add-wishlist" data-item="{{artwork.id}}" type="button"
+                            class="round-btn btn-light p-0 pt-1 m-0" aria-label="add to wishlist">
+                            <i class="fa-lg far fa-heart" aria-hidden="true"></i></button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if request.user.is_superuser %}
+                <div class="mt-4 d-flex justify-content-between">
+                    <a class="pe-2 text-primary" href="{% url 'edit_artwork' artwork.id %}" aria-label="edit artwork">
+                        <i class="far fa-edit fa-lg" aria-hidden="true"></i>
+                    </a>
+                    <button class="btn-bag" data-bs-toggle="modal" data-bs-target="#deleteModal-{{artwork.id}}">
+                        <i class="far fa-trash-alt text-danger fa-lg" aria-hidden="true"></i>
+                        <span class="sr-only">delete artwork</span>
+                    </button>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- separators -->
+        {% if forloop.counter|divisibleby:1 %}
+        <div class="col-12 d-sm-none my-3">
+            <hr>
+        </div>
+        {% endif %}
+
+        {% if forloop.counter|divisibleby:2 %}
+        <div class="col-12 d-none d-sm-block d-md-none d-lg-none my-4">
+            <hr>
+        </div>
+        {% endif %}
+
+        {% if forloop.counter|divisibleby:3 %}
+        <div class="col-12 d-none d-md-block d-xl-none my-4">
+            <hr>
+        </div>
+        {% endif %}
+        {% if forloop.counter|divisibleby:4 %}
+        <div class="col-12 d-none d-xl-block my-4">
+            <hr>
+        </div>
+        {% endif %}
+        <!-- end separator -->
+
+        <!-- Modal Delete -->
+        <div class="modal fade" id="deleteModal-{{artwork.id}}" tabindex="-1"
+            aria-labelledby="deleteModalLabel-{{artwork.id}}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <p class="modal-title fs-5" id="deleteModalLabel-{{artwork.id}}">Confirm delete</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete <strong>{{ artwork.name}}</strong>?
+                    </div>
+                    <div class="modal-footer justify-content-start">
+                        <button type="button" class="btn btn-white px-3" data-bs-dismiss="modal">Close</button>
+                        <a class="btn btn-danger px-4" href="{% url 'delete_artwork' artwork.id %}">Yes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end modal -->
+
+        {% endfor %}
+        {% else %}
+        <div class="col text-center">
+            <h2 class="py-4">Watch this space!</h2>
+            <p>Artwork coming soon ...</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'artworks/js/sort.js' %}"></script>
+{% endblock %}

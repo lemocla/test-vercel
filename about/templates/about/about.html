@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'about/css/about.css' %}">
+{% endblock %}
+
+{% block extra_title %}- about {% endblock %}
+
+{% block content %}
+
+<div class="container pt-md-5 pt-4 pb-3">
+    <div class="row pb-md-3 mb-4">
+        <h1 class="h1-page pb-mb-5 pb-4 mt-md-0">About</h1>
+        <div class="col-md-4 col-lg-3 mb-md-0">
+            <div class='about-portrait-cont'>
+                <img class='img-fluid shadow-lg rounded img-square' src="{{MEDIA_URL}}about-portrait.jpg" width='375'
+                    height='375' alt="artist portrait">
+            </div>
+        </div>
+        <div class="col ps-md-5 ms-md-3 pt-4 pt-md-0 relative text-center text-md-start">
+
+            <h2 class='mb-3 mb-md-5 fs-1 fw-bolder bio-name'>Peter Charalambides</h2>
+            <p class="mb-1">Visual Artist</p>
+            <p class="mb-0">Living & working in London</p>
+            <div class='mt-md-5 mt-4'>
+                <a href="{% url 'contact' %}" class="btn btn-black px-5 py-2 text-uppercase">contact</a>
+            </div>
+            <img class='img-drawing d-none d-md-block' src="{{MEDIA_URL}}about-illustration.png" width='500'
+                height='500' alt="black and white doodle illustration">
+        </div>
+    </div>
+    <!-- biography -->
+    <div class="row mt-5 mt-md-5">
+        <div class="col col-md-6">
+            <h2 class='trapez-bg ps-4 py-1 mb-4 mb-md-5'>Biography</h2>
+        </div>
+        <div class="col-12 mt-2 mt-md-0 px-3">
+            <p>Peter Charalambides is a visual artist living and working in London, England.</p>
+            <p>Peter works in a variety of mediums including spray and acrylic paint, oil sticks, collage and pen.
+                Pieces are characterised by colour and texture- qualities that magnify an expressionist style
+                throughout his works. There is a defining dichotomy in Peter's work, in so much that he seesaws
+                wildly between the monochrome and precision, to the free and colourful.</p>
+            <p>Peter is currently working on a series exploring the ideas of choice and freedom. Are choices freely
+                made or are they influenced by previous decisions (such as what children’s television programmes we
+                watched as children)? Or perhaps, we have no choice (or freedom whatsoever) and our paths are mapped
+                from the very outset.</p>
+            <p>Therefore, the pieces attempt to explore the ideas of existentialism, determinism and fatalism
+                through the medium of imagery, words and mathematics.</p>
+            <p>Peter Charalambides is a working artist and has sold artworks to patrons around the world. His work
+                has appeared in numerous exhibitions in the U.K and appeared in several publications.</p>
+            <p class='mb-1'>Peter has also donated several of his drawings to local causes, which have subsequently been
+                used in
+                merchandising and other charitable fund raising activities.</p>
+        </div>
+    </div>
+    <!-- events -->
+    <div class="row mt-5">
+        <div class="col col-md-6">
+            <h2 class='trapez-bg ps-4 py-1 mb-4 mb-md-5'>Events</h2>
+        </div>
+        <div class="ps-4">
+            {% if user.is_superuser %}
+            <div class="mb-4">
+                <a href="{% url 'add_event' %}" class="text-primary text-uppercase me-3">
+                    <i class="far fa-calendar-plus me-1" aria-hidden="true"></i><span class="text-link">Add an
+                        event</span>
+                </a>
+            </div>
+            {% endif %}
+            {% if events.count > 0 %}
+            {% for event in events.all %}
+            <div class="timeline-item"
+                data-dates="{{ event.date_start|date:'M Y' }} {% if event.date_end %}- {{event.date_end|date:'M Y'}}{% endif %}">
+                <h3 class="fs-4">{{ event.place }}</h3>
+                <p>{{ event.description }}</p>
+                {% if request.user.is_superuser %}
+                <div class="mt-2">
+                    <a href="{% url 'edit_event' event.id %}" class="text-primary small text-uppercase me-3">
+                        <i class="far fa-edit me-1" aria-hidden="true"></i><span class="text-link">Edit event</span>
+                    </a>
+                    <button class="btn-bag text-danger small text-uppercase" data-bs-toggle="modal"
+                        data-bs-target="#deleteEvent-{{event.id}}">
+                        <i class="far fa-trash-alt me-1" aria-hidden="true"></i><span class="text-link">Delete
+                            event</span>
+                    </button>
+                </div>
+
+                <!-- Modal delete -->
+                <div class="modal fade" id="deleteEvent-{{event.id}}" tabindex="-1" aria-labelledby="deleteModalLabel-{{event.id}}"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <p class="modal-title fs-5" id="deleteModalLabel-{{event.id}}">Confirm delete</p>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete your review <strong>{{ event.place }}</strong>?
+                            </div>
+                            <div class="modal-footer justify-content-start">
+                                <button type="button" class="btn btn-white px-3" data-bs-dismiss="modal">Close</button>
+                                <a class="btn btn-danger px-4"
+                                    href="{% url 'delete_event' event.id %}">Yes</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% else %}
+             <p>There are no events at the present.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

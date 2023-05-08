@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'artworks/css/artworks.css' %}">
+{% endblock %}
+
+{% block extra_title %}- {{ artwork.name }} {% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<!-- Breadcrumb menu -->
+<div class="container-fluid mg-top bg-ivory">
+    <div class="container container-crumbs py-2">
+        <div class="row align-middle align-items-center crumb-text">
+            <a href="{{ request.META.HTTP_REFERER }}" class='btn col-auto bg-white py-2 px-2 border border-secondary'><i
+                    class="fas fa-chevron-left pe-1"></i> Back</a>
+            <nav class="col pe-0" style="--bs-breadcrumb-divider: ' / ';" aria-label="breadcrumb">
+                <ol class="breadcrumb align-items-center align-middle mb-0">
+                    <li class="breadcrumb-item "><a href="{% url 'home' %}"><i class="fas fa-home pe-1"></i><span
+                                class="d-none d-md-inline-block "> Home</span></a></li>
+                    {% if 'portfolio' in request.META.HTTP_REFERER or category.category|lower == "commission" %}
+                    <li class="breadcrumb-item">{{ category.category|title }}</li>
+                    <li class="breadcrumb-item"><a href="{{ request.META.HTTP_REFERER }}">{{ category.name|title }}</a>
+                    </li>
+                    {% else %}
+                    <li class="breadcrumb-item"><a href="{% url 'shop' %}">Shop</a></li>
+                    {% if artwork.shop_category %}
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'shop' %}?shop_category={{shop_category.backend_name}}">
+                            {{artwork.shop_category|title}}
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+                    <li class="d-none d-sm-inline-block breadcrumb-item active" aria-current="page"><span
+                            class="truncate">{{ artwork.name|title }}</span></li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- Artwork details -->
+<div class="container artwork-cont pb-3">
+    <div class="row gx-lg-5">
+        <!-- Artwork image -->
+        <div class="col-md-6 col-lg-6 pe-xl-5 text-center d-lg-flex flex-column">
+            <div class="img-detail-container">
+                {% if artwork.stock == 0 %}
+                <div class="out-of-stock-label px-5 py-1">out of stock</div>
+                {% endif %}
+                {% if artwork.on_sale %}
+                <div class="sale-label text-uppercase">sale</div>
+                {% endif %}
+                <img src="{{ MEDIA_URL }}{% if artwork.image %}{{ artwork.image }}{% else %}default_image.png{% endif %}"
+                    class="img-fluid img-detail"
+                    alt="{% if not artwork.image %}default for {% endif %}{{ artwork.name }}" width="500" height="500">
+            </div>
+        </div>
+        <div class="col-md-6 ps-md-4 pe-0">
+            <!--Artwork title-->
+            <h1 class="mt-4 mt-md-0 pt-1 pt-md-0">{{ artwork.name }}</h1>
+            <!---Price-->
+            <div class="d-flex justify-content-between">
+                <p class="fs-5 m-0 fw-bolder text-secondary">
+                    {% if artwork.on_sale %}<span class="striked">£{{ artwork.price }}</span>
+                    <span class="red-text ps-2">£{{ artwork.sale_price }}</span>
+                    {% else %}
+                    £{{ artwork.price }}
+                    {% endif %}
+                    {% if artwork.status != 'active' %}
+                    <span class="fs-6 fst-normal"> - {{ artwork.status }}</span>
+                    {% endif %}
+                </p>
+                <!-- super user buttons -->
+                {% if request.user.is_superuser %}
+                <div class="text-end pe-md-5">
+                    <a class="text-primary px-3" href="{% url 'edit_artwork' artwork.id %}" aria-label="edit artwork">
+                        <i class="far fa-edit fa-lg"></i>
+                    </a>
+                    <button class="btn-bag pe-3" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="far fa-trash-alt text-danger fa-lg" aria-hidden="true"></i>
+                        <span class="sr-only">delete artwork</span>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <!--Description-->
+            <p class="mt-4 mb-1">{{ artwork.materials }}</p>
+            <p class='mb-1'>Size: {{ artwork.size }} cm</p>
+            <p class='mb-1'>Year: {{ artwork.year }}</p>
+            <p class="mt-4 mb-1">Type: {% if artwork.display_shop %}{{ artwork.shop_category|title }}{% else %}
+                {{category.category|title}} {% endif %}</p>
+            <p class="mb-1">Collection: {{ artwork.portfolio|title }}</p>
+
+            {% if artwork.display_shop %}
+            <form id="form-qty" class="form" action="{% url 'add_to_bag' artwork.id %} " method="POST">
+                {% csrf_token %}
+                <!--Quantity-->
+                <h2 class="fs-5 fw-bold mt-4 mb-2 normal-text">Quantity</h2>
+                <select class="px-4 py-2 mb-1" aria-label="Select quantity" name="quantity">
+                    <option selected value="1">1</option>
+                    {% if artwork.stock >= 2 %}
+                    <option value="2">2</option>
+                    {% endif %}
+                    {% if artwork.stock >= 3 %}
+                    <option value="3">3</option>
+                    {% endif %}
+                    {% if artwork.stock >= 4 %}
+                    <option value="4">4</option>
+                    {% endif %}
+                    {% if artwork.stock >= 5 %}
+                    <option value="5">5</option>
+                    {% endif %}
+                </select>
+
+                <!--Buttons-->
+                <div class="mt-4 pb-2">
+                    {% if request.user.is_authenticated and is_wishlist %}
+                    <button type="button" data-action="remove-from-wishlist" data-item="{{artwork.id}}"
+                        class="btn btn-white px-xl-5 py-2 text-uppercase">Remove from wishlist</button>
+                    {% else %}
+                    <button type="button" data-action="add-wishlist" data-item="{{artwork.id}}"
+                        class="btn btn-white px-xl-5 py-2 text-uppercase">Add to wishlist</button>
+                    {% endif %}
+                    {% if artwork.stock > 0 %}
+                    <input type="submit" id="add-to-bag" class="btn btn-black px-xl-5 py-2 text-uppercase"
+                        value="Add to Bag">
+                    {% else %}
+                    <a href="{% url 'contact' %}" class="btn btn-black px-xl-5 py-2 text-uppercase">Contact us</a>
+                    {% endif %}
+                </div>
+
+            </form>
+            {% if artwork.shop_category|lower != 'prints' %}
+            <div class="d-none d-lg-block m-0 p-0 ">
+                <hr class="my-4 my-lg-5">
+                <div class="offset-lg-6 ps-lg-5">
+                    <p class="mb-2"><i class="fas fa-lg fa-truck pe-3" aria-hidden="true"></i>Free delivery</p>
+                    <p class="mb-2"><i class="fas fa-lg fa-gift pe-3" aria-hidden="true"></i> Gift otpions</p>
+                    <p class="m-0"><i class="fas fa-lg fa-sign-out-alt pe-3" aria-hidden="true"></i> Return accepted</p>
+                </div>
+            </div>
+            {% endif %}
+            {% else %}
+            <p class="mt-3 mt-xl-4 fs-5 fw-bolder">Interested in a commission?</p>
+            <div class="mt-4 pb-2">
+                {% if request.user.is_authenticated and is_wishlist %}
+                <button data-action="remove-from-wishlist" data-item="{{artwork.id}}"
+                    class="btn btn-white px-xl-5 py-2 text-uppercase">Remove from wishlist</button>
+                {% else %}
+                <button data-action="add-wishlist" data-item="{{artwork.id}}"
+                    class="btn btn-white px-xl-5 py-2 text-uppercase">Add to wishlist</button>
+                {% endif %}
+                <a href="{% url 'contact' %}" class="btn btn-black px-xl-5 py-2 text-uppercase">Contact us</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% if artwork.display_shop %}
+    <div class="d-block {% if artwork.shop_category|lower != 'prints' %}d-lg-none{% endif %} m-0 p-0">
+        <hr class="my-4 my-lg-5">
+        <div>
+            <p class="mb-2"><i class="fas fa-lg fa-truck pe-3" aria-hidden="true"></i>Free delivery</p>
+            <p class="mb-2"><i class="fas fa-lg fa-gift pe-3" aria-hidden="true"></i> Gift otpions</p>
+            <p class="m-0"><i class="fas fa-lg fa-sign-out-alt pe-3" aria-hidden="true"></i> Return accepted</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <hr class="my-4 my-lg-5">
+
+    <!-- Related items -->
+    <div class="row">
+        <h2 class="pb-4 pb-lg-5{% if artwork.shop_category|lower == 'prints' %}pb-3{% endif %}">You may also like</h2>
+        {% if related_items.count > 0 %}
+        <!-- carousel -->
+        <div id="custom-carousel" class="row container-related m-0 p-0">
+            {% for item in related_items %}
+            {% if item.status == 'active' %}
+            <div class="card card-items pb-0 col-6 col-sm-6 col-md-4 col-xl-3">
+                <!-- related items image -->
+                <a href="{% url 'artwork_details' item.id %}" class="card-rel-items text-link">
+                    {% if item.stock == 0 %}
+                    <div class="out-of-stock-label px-4 px-md-5 py-1">out of stock</div>
+                    {% endif %}
+                    <img class="card-img-top"
+                        src="{{ MEDIA_URL }}{% if item.image %}{{ item.image }}{% else %}default_image.png{% endif %}"
+                        alt="{% if not item.image %}default for {% endif %}{{ item.name }}" width="350" height="250">
+                    <!-- related artwork name -->
+                    <div class="px-1 mt-4 text-start">
+                        <h3 class="card-title fs-5 mb-0 text-truncate ">{{ item.name }}</h3>
+                    </div>
+                </a>
+                <div class="card-body px-1 pt-0 pb-4">
+                    <!-- related artwork details -->
+                    <p class="mt-2 mb-0 text-muted small">{{item.materials }}</p>
+                    <p class="d-none d-sm-block mb-0 text-muted small">Size: {{ item.size }} cm</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <!--related artwork price-->
+                        <h4 class="mt-2 mb-0 fs-5 price align-self-end">£{{ item.price }}</h4>
+                        <!--related action buttons -->
+                        <div class="d-none d-sm-block btn-group pe-1" role="group" aria-label="Basic example">
+                            {% if item.stock > 0 %}
+                            <button type="button" class="round-btn btn-light me-2 p-0 m-0" aria-label="add to cart">
+                                <i class="fas fa-cart-plus" aria-hidden="true"></i></button>
+                            {% endif %}
+                            {% if request.user.is_authenticated and item.artwork in wishlist.all %}
+                            <button data-action="remove-from-wishlist" data-item="{{item.id}}" type="button"
+                                aria-label="remove from wishlist" class="round-btn btn-light me-2 p-0 m-0">
+                                <i class="fa-lg fas fa-heart red-text" aria-hidden="true"></i></button>
+                            {% else %}
+                            <button data-action="add-wishlist" data-item="{{item.id}}" type="button"
+                                aria-label="add to wishlist" class="round-btn btn-light p-0 m-0"> <i
+                                    class="fa-lg far fa-heart" aria-hidden="true"></i></button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <!-- Carousel next and previous buttons -->
+        <div class="btn-group mt-2">
+            <button class="btn text-start" type="button" id="previous" aria-label="previous">
+                <i class="fas fa-chevron-left fa-lg" aria-hidden="true"></i></button>
+            <button class="btn text-end" type="button" id="next" aria-label="next">
+                <i class="fas fa-chevron-right fa-lg" aria-hidden="true"></i>
+            </button>
+        </div>
+        {% else %}
+        <div class="col">
+            <p>There are no related products</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <hr class="my-4 my-lg-5">
+
+    <!-- Reviews -->
+    <div class="row">
+        <h2 class="pb-4">Reviews</h2>
+        <div class="d-sm-flex justify-content-between">
+            <p class="text-muted text-uppercase"> {{ reviews|length }} shop reviews
+                {% if reviews|length > 0 %}- avg rating: {{ artwork.rating|floatformat:1 }}/5{% endif %}
+            </p>
+            <!-- reviews action links -->
+            {% if request.user.is_authenticated %}
+            <p class="mb-1">
+                {% if order_line_add %}
+                <a href="{% url 'add_reviews' artwork.id order_line_add.id %}?next={{ request.path|urlencode }}"
+                    class="text-primary fw-bold text-uppercase">
+                    <i class="far fa-comment-alt me-1" aria-hidden="true"></i>
+                    <span class="small text-link">Leave a review</span>
+                </a>
+                {% endif %}
+            </p>
+            {% endif %}
+        </div>
+        {% if reviews|length > 0 %}
+        {% for review in reviews %}
+        <div class="col-12 my-4">
+            {% include 'reviews/includes/reviews_display.html' %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="col-12 my-4">
+            <p>There are no reviews available for this item.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal delete artwork-->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="deleteModalLabel">Confirm delete</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong>{{ artwork.name}}</strong>?
+            </div>
+            <div class="modal-footer justify-content-start">
+                <button type="button" class="btn btn-white px-3" data-bs-dismiss="modal">Close</button>
+                <a class="btn btn-danger px-4"
+                    href="{% url 'delete_artwork' artwork.id %}?ref={{request.META.HTTP_REFERER}}">Yes</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'artworks/js/carousel.js' %}"></script>
+{% endblock %}

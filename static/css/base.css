@@ -1,0 +1,605 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+/*---------------[ COLOR ]-----------------*/
+
+:root {
+    --darkgrey: #5f5f61;
+    --ivory: #c2c2c2;
+    --red: #B30730;
+    --green: #12702f;
+    --black: #0D0000;
+    --white: #ffffff;
+}
+
+body {
+    font-family: Mulish;
+    color: var(--black);
+}
+
+/*----------------[CONTAINERS]----------------*/
+
+.container {
+    min-height: 60vh !important;
+    margin-top: 78px;
+}
+
+.mg-top {
+    margin-top: 72px;
+}
+
+.artwork-cont {
+    margin-top: 3rem;
+}
+
+.card {
+    border: none;
+}
+
+/*----------------[ HEADERS ]-----------------*/
+
+h1,
+h2,
+h3,
+.modal-title,
+.navbar-brand,
+.homepage-h2,
+.toast-header {
+    font-family: Bungee;
+}
+
+.homepage-h2 {
+    font-size: 2.75rem;
+}
+
+.h1-page {
+    font-size: 3rem;
+}
+
+.striked {
+    text-decoration: line-through;
+    font-size: 0.85rem;
+}
+
+.red-text {
+    color: var(--red);
+}
+
+.normal-text {
+    font-family: Mulish !important;
+}
+
+/*---------------[ BACKGROUND ]---------------*/
+
+.bg-black {
+    background-color: var(--black);
+}
+
+.bg-ivory {
+    background-color: #c2c2c254;
+}
+
+.trapez-bg {
+    clip-path: polygon(0% 0%, 97% 0, 100% 100%, 0% 100%);
+    -moz-clip-path: polygon(0% 0%, 97% 0, 100% 100%, 0% 100%);
+    -webkit-clip-path: polygon(0% 0%, 97% 0, 100% 100%, 0% 100%);
+    -o-clip-path: polygon(0% 0%, 97% 0, 100% 100%, 0% 100%);
+    background-color: var(--black);
+    color: var(--white);
+}
+
+/*------------[ SECTION DIVIDER ]-------------*/
+
+.section-divider {
+    border-top: 1px solid var(--black);
+    border-radius: 5px;
+    box-shadow: 1px 2px 5px var(--black);
+}
+
+/*-------------[ IMAGES ]---------------------*/
+
+.img-fluid {
+    width: 100%;
+}
+
+/*----------------[ LINKS ]--------------------*/
+
+a {
+    text-decoration: none;
+    color: inherit;
+    outline: none;
+}
+
+.form-link {
+    color: #0d6efd;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+    color: inherit;
+}
+
+/*--------------[ BUTTONS ]--------------------*/
+
+
+.round-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.1rem;
+    border-radius: 2.5rem !important;
+    border: none;
+    box-shadow: 1px 1px 15px 0px rgb(0 0 0 / 30%);
+    text-align: center;
+}
+
+.round-btn:hover {
+    background-color: #e7e7e7;
+    box-shadow: 0px 0px 12px 0px rgb(0 0 0 / 30%);
+}
+
+.btn-review {
+    border: none;
+    background: transparent;
+}
+
+a.btn,
+.btn {
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 2px;
+}
+
+.btn-black {
+    background-color: var(--black);
+    color: var(--white);
+}
+
+.btn-white {
+    background-color: var(--white);
+    border: 1px solid var(--black);
+}
+
+.btn-black:hover {
+    background: var(--white);
+    border: 1px solid var(--black);
+    color: var(--black);
+}
+
+.btn-white:hover {
+    background: var(--black);
+    border: 1px solid var(--white);
+    color: var(--white);
+}
+
+.btn-bag {
+    border: transparent !important;
+    background-color: transparent;
+}
+
+footer a.btn:hover,
+.footer-btn:hover {
+    background-color: var(--ivory) !important;
+    transform: scale(1.02);
+}
+
+nav i:hover,
+.bag-count:hover+i,
+.cart-li:hover i,
+footer li a:hover,
+.sm-icon:hover {
+    transform: scale(1.1);
+    color: var(--ivory);
+}
+
+.cart-li:hover .bag-count,
+.bag-count:hover {
+    background-color: var(--ivory);
+}
+
+#add-to-bag:hover,
+.bag:hover,
+#checkout:hover,
+#go-checkout:hover,
+form .btn-black:hover {
+    color: var(--white);
+    border: 1px solid var(--green) !important;
+    background-color: var(--green) !important;
+}
+
+/*---------------[ TOASTS ]------------------*/
+
+.message-container {
+    position: fixed;
+    top: 4.15rem;
+    right: 3.5vw;
+    z-index: 99999999999;
+}
+
+.toast {
+    overflow: visible;
+    background-color: var(--white);
+    border: 2px solid var(--black);
+    border-radius: 5px !important;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .85) !important;
+    padding: 0.25rem;
+}
+
+.toast-capper {
+    height: 2px;
+    margin: 0 0.5rem;
+}
+
+.img-toast {
+    width: auto;
+}
+
+/* from CSS-tricks.com: https://css-tricks.com/snippets/css/css-triangle/ */
+.arrow-up {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 10px solid white;
+    position: absolute;
+    top: -8px;
+    right: 25px;
+}
+
+.toast-header {
+    border-bottom: none;
+    color: inherit;
+}
+
+.toast-img>img {
+    max-height: 65px;
+}
+
+/*---------------[ LABELS ]------------------*/
+
+.out-of-stock-label {
+    position: absolute;
+    font-weight: bold;
+    background-color: var(--black);
+    color: var(--white);
+    text-transform: uppercase;
+    top: 50px;
+    left: 0;
+    z-index: 2;
+}
+
+.sale-label {
+    position: absolute;
+    background-color: var(--red);
+    color: var(--white);
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: bold;
+    padding-top: 0.9rem;
+    right: 10px;
+    top: 5px;
+    z-index: 2;
+}
+
+/*-------------[ NAVIGATION ]----------------*/
+
+.nav-link {
+    padding: .5rem .35rem;
+}
+
+.active,
+.dropdown-item:hover {
+    font-weight: 800;
+}
+
+.dropdown-menu-dark {
+    background-color: var(--black);
+}
+
+.dropdown-menu {
+    min-width: 13rem;
+}
+
+.dropdown-menu-dark .dropdown-item:hover,
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: var(--white);
+    background-color: transparent;
+}
+
+.cart-li {
+    position: relative
+}
+
+nav .list-inline-item i {
+    font-size: 1.45rem;
+}
+
+.bag-count {
+    position: absolute;
+    color: var(--black);
+    padding: 0 0.15rem;
+    top: 1rem;
+    left: 0.6rem;
+    font-size: 0.78rem;
+    font-weight: bolder;
+    line-height: 0.85rem;
+    z-index: 2;
+    background-color: white;
+}
+
+/*-----------[ ALL AUTH / FORMS]-------------*/
+
+select {
+    min-width: 75px;
+    height: 37px !important;
+    background-color: var(--white) !important;
+    border-radius: 2px !important;
+}
+
+.select-height {
+    height: 100px !important;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    margin-bottom: 0.35rem;
+}
+
+#subscribe-form label,
+#sort-label,
+#profile-form label,
+#checkout-form label,
+.gift-label {
+    position: absolute;
+    z-index: -3;
+}
+
+#subscribe-form label,
+#div_id_email_newsletter .asteriskField {
+    color: var(--white);
+}
+
+#id_email_newsletter {
+    border: 1px solid var(--white);
+}
+
+.custom-checkbox label {
+    padding-left: 0.75rem;
+}
+
+.form-control,
+.checkboxinput,
+.form-check-input,
+.form-select {
+    color: inherit;
+    border: 1px solid var(--darkgrey);
+}
+
+.form-control:focus {
+    border-color: inherit;
+    outline: 0;
+    box-shadow: 0 0 0.5rem 0.15rem rgba(8, 8, 8, 0.15);
+}
+
+.asteriskField {
+    font-weight: bold;
+    color: var(--red);
+    padding-left: 0.25rem;
+}
+
+#div_id_remember {
+    margin: 1.5rem 0;
+}
+
+.form-link {
+    color: #0d6efd;
+}
+
+.img-abs {
+    position: absolute;
+    top: 85px;
+    right: 0px;
+    width: 120px;
+    height: 120px;
+}
+
+#div_id_password,
+#div_id_password1,
+#div_id_password2 {
+    position: relative;
+}
+
+.password-visible {
+    position: absolute;
+    top: 2.5rem;
+    right: 1rem;
+    z-index: 1;
+}
+
+form.submitted *:not(form):invalid {
+    border-color: var(--red) !important;
+    box-shadow: 0 0 0 0.1rem rgba(220, 53, 69, 0.25);
+}
+
+/*--------------[ FORM IMAGE WIDGET ]------------*/
+
+.widget {
+    max-width: 645px !important
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-file input[type="file"] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+#image-clear_id~label {
+    padding-left: 0.25rem !important;
+}
+
+/*--------[ CHECKOUT / ORDER DETAILS ]-------*/
+
+.img-checkout>img {
+    object-fit: contain;
+    max-height: 65px;
+}
+
+.hide {
+    display: none;
+}
+
+/*----------------[ REVIEWS ]----------------*/
+
+.list-group-item {
+    border: none !important;
+    padding: 0rem 0.15rem;
+}
+
+.starred {
+    color: var(--black);
+}
+
+.review-img {
+    max-width: 100%;
+    object-fit: cover;
+    width: 40px;
+    height: 40px;
+    border-radius: 2px;
+}
+
+/*-----------------[ FOOTER ]----------------*/
+
+.footer-header {
+    font-size: 1.25rem;
+}
+
+.sm-icon {
+    font-size: 1.75rem;
+}
+
+/*------------[ ERROR PAGES ]----------------*/
+
+.error-img {
+    height: 300px;
+    object-fit: cover;
+}
+
+.error-img-fit {
+    height: 340px;
+    object-fit: scale-down;
+}
+
+/*-------------[ MEDIA QUERIES ]-------------*/
+
+@media only screen and (min-width: 576px) {
+    .error-img-fit {
+        height: 450px;
+    }
+
+    .round-btn {
+        width: 2.3rem;
+        height: 2.3rem;
+        font-size: 1rem;
+        border-radius: 2rem !important;
+        border: none;
+        box-shadow: 1px 1px 15px 0px rgba(0, 0, 0, 0.20);
+        text-align: center;
+    }
+
+    .truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 13rem;
+        display: inline-block;
+        vertical-align: bottom;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .img-abs {
+        position: absolute;
+        top: 85px;
+        right: 0px;
+        width: 200px;
+        height: auto;
+    }
+
+    .message-container {
+        right: 6vw;
+    }
+
+    .truncate {
+        max-width: 100%;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .message-container {
+        right: 4vw;
+    }
+
+    .reviews-container {
+        max-width: 415px;
+    }
+
+    .img-abs {
+        display: none;
+    }
+
+    .form-control,
+    .checkboxinput,
+    .form-check-input,
+    .form-select {
+        max-width: 635px;
+    }
+}
+
+@media only screen and (min-width: 1200px) {
+    .message-container {
+        right: 3vw;
+    }
+}
+
+@media only screen and (min-width: 1399px) {
+    .img-sizing {
+        width: 90%;
+    }
+}
+
+@media only screen and (min-width: 1750px) {
+
+    body,
+    .btn,
+    .fs-6 {
+        font-size: 1.1rem;
+    }
+
+    .bag-count {
+        top: 1.1rem;
+    }
+}
+
+@media only screen and (min-height: 1105px) {
+    .container {
+        min-height: 75vh !important;
+    }
+}

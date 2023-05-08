@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'portfolio/css/portfolio.css' %}">
+{% endblock %}
+
+{% block extra_title %}- {{ portfolio.name }} {% endblock %}
+
+{% block content %}
+
+<div class="container pt-md-5 pt-4 pb-3">
+  <div class="row pb-md-3 mb-4">
+
+    <div class="col-lg-4 portfolio-cont text-wrap text-truncate">
+      <h1 class="homepage-h2 pb-mb-5 pb-4 mt-md-0">{{ portfolio.name }}</h1>
+      <!--https://stackoverflow.com/questions/10270891/newline-in-models-textfield-not-rendered-in-template-->
+      {{ portfolio.description|linebreaks }}
+      {% if portfolio.materials %}
+      <h2 class="fs-4 py-3">Materials</h2>
+      {{ portfolio.materials|linebreaks}}
+      {% endif %}
+      {% if request.user.is_superuser %}
+      <div class="mt-4">
+        <h2 class="fs-4 py-2">Admin</h2>
+        <a class="text-primary pe-3" href="{% url 'edit_portfolio' portfolio.id %}" aria-label="edit portfolio">
+          <i class="far fa-edit fa-lg" aria-hidden="true"></i></a>
+        <span class="sr-only">edit portfolio</span>
+        <button class="btn-bag" data-bs-toggle="modal" data-bs-target="#deleteModal">
+          <i class="far fa-trash-alt fa-lg text-danger" aria-hidden="true"></i>
+          <span class="sr-only">delete portfolio</span>
+        </button>
+      </div>
+      {% endif %}
+      <hr class="my-5 my-lg-0 d-lg-none">
+    </div>
+
+    <div class="col-lg-8 ps-lg-4">
+
+      {% if artworks.count > 0 %}
+      <div id="photos" class="ms-lg-2">
+
+        {% for artwork in artworks %}
+        <div class="gallery-item" data-item="{{artwork.id}}">
+
+          <div class="overlay">
+            <div class="p-2 d-flex justify-content-end">
+
+              <!-- super user edit and delete buttons-->
+              {% if request.user.is_superuser %}
+              <a class="btn round-btn btn-light me-2 m-0 px-0" href="{% url 'edit_artwork' artwork.id %}"
+                aria-label="edit artwork"><i class="far fa-edit fs-5 text-primary" aria-hidden="true"></i>
+                <span class="sr-only">edit artwork</span>
+              </a>
+              <button class="btn round-btn btn-light me-2 m-0 p-0" data-bs-toggle="modal"
+                data-bs-target="#deleteModal-{{artwork.id}}">
+                <i class="far fa-trash-alt text-danger fs-5" aria-hidden="true"></i>
+                <span class="sr-only">delete artwork</span>
+              </button>
+              {% endif %}
+
+              <!-- buttons -->
+              {% if artwork.image %}
+              <button type="button" class="round-btn btn-light me-2 " data-bs-toggle="modal"
+                data-bs-target="#modal-{{artwork.id}}">
+                <i class="fas fa-search-plus fs-5"></i>
+                <span class="sr-only">view zoom of artwork</span>
+              </button>
+              {% endif %}
+              <a href="{% url 'artwork_details' artwork.id %}" class="btn round-btn btn-light me-2 m-0">
+                <i class="fas fa-info fs-5" aria-hidden="true"></i>
+                <span class="sr-only">go to artwork details</span>
+              </a>
+              {% csrf_token %}
+              {% if request.user.is_authenticated and artwork in wishlist %}
+              <button data-action="remove-from-wishlist" data-item="{{artwork.id}}" type="button"
+                class="round-btn btn-light ">
+                <i class="fa-lg fas fa-heart red-text" aria-hidden="true"></i>
+                <span class="sr-only">remove from wishlist</span>
+              </button>
+              {% else %}
+              <button data-action="add-wishlist" data-item="{{artwork.id}}" type="button" class="round-btn btn-light">
+                <i class="fa-lg far fa-heart" aria-hidden="true"></i>
+                <span class="sr-only">add to wishlist</span>
+              </button>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- artwork details -->
+          <img src="{{ MEDIA_URL }}{% if artwork.image %}{{ artwork.image }}{% else %}default_image.png{% endif %}"
+            class="img-fluid shadow" alt="{% if not artwork.image %}default for {% endif %}{{ artwork.name }}"
+            width="350" height="350">
+          <div class="mt-3">
+            <h3 class="fs-6 py-1">{{ artwork.name }}</h3>
+            <p class="fw-lighter my-0 fs-6 text-muted">{{artwork.materials}}</p>
+            <p class="fw-lighter my-0 fs-6 text-muted">{{ artwork.year }}</p>
+          </div>
+        </div>
+
+        <!-- Modal zoom image -->
+        <div class="modal mt-5 mt-md-4 mt-xl-5 pt-4 fade modal-gallery" id="modal-{{artwork.id}}" tabindex="-1"
+          aria-labelledby="ModalLabel-{{artwork.id}}" aria-hidden="true">
+          <div class="modal-dialog modal-gallery-cont">
+            <div class="modal-content border-0">
+              <div class="modal-header border-0 text-uppercase">
+                <p class="modal-title fs-5" id="ModalLabel-{{artwork.id}}">{{artwork.name}}</p>
+                <button type="button" class="btn-close pb-3" data-bs-dismiss="modal" aria-label="Close"><i
+                    class="fas fa-times fs-2"></i></button>
+              </div>
+              <div class="modal-body text-center">
+                <img src="{{MEDIA_URL}}{% if artwork.image %}{{ artwork.image }}{% else %}default_image.png{% endif %}"
+                  class="img-fluid shadow" alt="{{artwork.name}}" width="650" height="650">
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- end modal -->
+
+        <!-- Modal Delete -->
+        <div class="modal fade" id="deleteModal-{{artwork.id}}" tabindex="-1"
+          aria-labelledby="deleteModalLabel-{{artwork.id}}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <p class="modal-title fs-5" id="deleteModalLabel-{{artwork.id}}">Confirm delete</p>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Are you sure you want to delete <strong>{{ artwork.name}}</strong>?
+              </div>
+              <div class="modal-footer justify-content-start">
+                <button type="button" class="btn btn-white px-3" data-bs-dismiss="modal">Close</button>
+                <a class="btn btn-danger px-4" href="{% url 'delete_artwork' artwork.id %}">Yes</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- end modal -->
+
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="row ms-lg-5 pb-5 justify-content-center">
+        <h3 class="py-5 text-center">Exciting stuff coming soon!</h3>
+        <img src="{{MEDIA_URL}}default_image.png" class="p-2 portfolio-noimg shadow rounded" alt="default image"
+          width="650" height="650" />
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <p class="modal-title fs-5" id="deleteModalLabel">Confirm delete</p>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong>{{ portfolio.name}}</strong>?
+      </div>
+      <div class="modal-footer justify-content-start">
+        <button type="button" class="btn btn-white px-3" data-bs-dismiss="modal">Close</button>
+        <a class="btn btn-danger px-4" href="{% url 'delete_portfolio' portfolio.id %}">Yes</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
