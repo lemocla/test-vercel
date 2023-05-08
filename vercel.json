@@ -11,11 +11,10 @@
       }
     ],
     "routes": [
- 
       {
-        "src": "/(.*)",
-        "dest": "whichwayisup/wsgi.py"
+          "src": "/(.*)",
+          "dest": "whichwayisup/wsgi.py"
       }
-    ]
+  ]
   }
   
