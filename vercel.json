@@ -7,8 +7,7 @@
         "config": {
           "maxLambdaSize": "15mb",
           "runtime": "python3.9"
-        },
-        "excludeFiles": "public/**"
+        }
       },
       {
         "src": "build_files.sh",
