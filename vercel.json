@@ -1,20 +1,14 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "whichwayisup/wsgi.py",
-        "use": "@ardnt/vercel-python-wsgi",
-        "config": {
-          "maxLambdaSize": "15mb",
-          "runtime": "python3.9"
-        }
-      }
-    ],
-    "routes": [
+  "builds": [{
+      "src": "whichwayisup/wsgi.py",
+      "use": "@ardnt/vercel-python-wsgi",
+      "config": { "maxLambdaSize": "15mb" }
+  }],
+  "routes": [
       {
           "src": "/(.*)",
           "dest": "whichwayisup/wsgi.py"
       }
   ]
-  }
+}
   
