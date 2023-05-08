@@ -16,11 +16,6 @@
         "src": "/(.*)",
         "dest": "whichwayisup/wsgi.py"
       }
-    ],
-    "functions": {
-      "*/wsgi.py.py": {
-        "excludeFiles": "public/**"
-      }
-    }
+    ]
   }
   
